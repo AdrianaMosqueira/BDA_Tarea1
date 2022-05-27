@@ -195,24 +195,28 @@ mae_cenagro_2564$media_ppquechua
 mae_cenagro_65mas$media_ppquechua=mean(mae_cenagro_65mas$ppquechua)
 mae_cenagro_65mas$media_ppquechua
 ```
+```{r}
+table(cenagro$rango_edad)
+```
 
 c. Luego crearemos un objeto con la fracción muestral para cada estrato
 ```{r}
-N_mae_1224=c(127)
-n_mae_1224=c(34)
+N_mae_1224=c(114647)
+n_mae_1224=c(127)
 f_mae_1224=n_mae_1224/N_mae_1224
 f_mae_1224
 
-N_mae_2564=c(1663)
-n_mae_2564=c(524)
+N_mae_2564=c(1665605)
+n_mae_2564=c(1663)
 f_mae_2564=n_mae_2564/N_mae_2564
 f_mae_2564
 
-N_mae_65mas=c(457)
-n_mae_65mas=c(160)
+N_mae_65mas=c(466450)
+n_mae_65mas=c(457)
 f_mae_65mas=n_mae_65mas/N_mae_65mas
 f_mae_65mas
 ```
+
 La fracción muestral identificada para cada uno de los estratos, son los siguientes: Estrato "12 a 24" = 0.2677, estrato "25 a 64" = 0.3151 y estrato "65 a mas" = 0.3501
 
 d. Posteriormente se creará una variable con la corrección de población finita, para cada uno de los estratos. 
@@ -307,12 +311,15 @@ mae_cenagro_65mas$w
 3.9. Finalmente, procedemos a realizar la suma de todos los pesos, para cada uno de los estratos.
 
 ```{r}
-sum(mae_cenagro_1224$w)
+w_1224=sum(mae_cenagro_1224$w)
+w_1224
+w_2564=sum(mae_cenagro_2564$w)
+w_2564
+w_65mas=sum(mae_cenagro_65mas$w)
+w_65mas
 
-sum(mae_cenagro_2564$w)
-
-sum(mae_cenagro_65mas$w)
-
+w_tot=w_1224+w_2564+w_65mas
+w_tot
 #Al hacer esta suma notamos que conseguimos la población total original, ya que inicialmente se estuvo trabajando con una muestra de la población para cada uno de los estratos. Una vez que aplicamos el factor de expasión, los resultados obtenidos son extrapolables a nivel poblacional. 
 ```
 
@@ -329,11 +336,6 @@ mae_cenagro_append = rbind(mae_cenagro_1224_2564, mae_cenagro_65mas)
 # Contamos para fpc (estrato)
 mae_cenagro_append %>%
   count(ppquechua)
-
-# Extraemos muestra (MAE)
-mae4 <- mae_cenagro_append %>%
-   group_by(sexo) %>%
-  slice_sample(prop = 0.001)
 
 mae4 <- mae4 %>%
   mutate(fpce = case_when(

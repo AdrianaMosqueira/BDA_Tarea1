@@ -365,13 +365,13 @@ media_ppquechua_65mas
 ```
 ```{r}
 #Luego procedemos a sacar los pesos por cada estrato.
-w1224=N_mae_1224/n_mae_1224
+w1224=n_mae_1224/2247
 w1224
 
-w2564=N_mae_2564/n_mae_2564
+w2564=n_mae_2564/2247
 w2564
 
-w65=N_mae_65mas/n_mae_65mas
+w65=n_mae_65mas/2247
 w65
 ```
 
@@ -381,6 +381,7 @@ w65
 mean_ppquechua_tot= (media_ppquechua_1224*w1224 + media_ppquechua_2564*w2564 + media_ppquechua_65mas*w65)
 mean_ppquechua_tot
 ```
+
 
 
 

@@ -1,0 +1,380 @@
+---
+title: "Trabajo Adriana_Andrés"
+author: "Andrés"
+date: "22/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Limpiar el espacio de trabajo
+rm(list = ls())
+```
+
+# Parte I
+## Pregunta 1. Indique a qué enfoque (diseño o modelo) corresponde cada una de las siguientes características
+
+a. Asume población finita: Enfoque del Diseño
+b. Asume que la variables objetivo es aleatoria: Enfoque del Modelo
+c. Asume un proceso generador de datos: Enfoque del Modelo
+d. Asume que el componente aleatorio viene de cómo seleccionamos las observaciones: Enfoque del Diseño
+
+
+# Parte II
+
+```{r}
+#Cargamos las librerías
+library(survey)
+library(tidyverse)
+library(foreign)
+library(haven)
+library(dplyr)
+library(rio)
+```
+
+```{r}
+link_cenagro="https://github.com/AdrianaMosqueira/Big_Data_Analytics_Tarea1/raw/main/cenagro2012_mod.dta"
+```
+
+```{r, include=TRUE}
+#Cargamos la base de datos
+cenagro = import(link_cenagro)
+View(cenagro)
+```
+
+## Pregunta 1. Calcular la siguientes variables
+### 1.1. Una variable categórica que identifique los siguientes grupos etarios: de 12 a 24 inclusive, de 25 a 64 inclusive, de 65 a más. Llamar a esta variable “rango_edad”.
+
+Primero se construye un variable categórica que determine los siguientes grupos etarios:
+```{r}
+cenagro = cenagro |> 
+  mutate(rango_edad=
+           case_when(edad %in% c(12:24)~"12 a 24",
+                     edad %in% c(25:64)~"25 a 64",
+                     edad %in% c(65:98)~"65 a mas",
+                     FALSE~"Ninguno"))
+
+table(cenagro$rango_edad)
+```
+
+### 1.2.	Una variable dicotómica que identifique a las Unidades Agropecuarias (UAs) que son dirigidas por personas cuya lengua materna es el quechua. Llamar a esta variable “ppquechua”.
+
+Se construye una variable dicotómica denominada "ppquechua", que tendrá el varlor de 1 = lengua materna es el quechua y 0 = lengua materna no es el quechua
+```{r}
+cenagro$ppquechua <- ifelse(cenagro$lengua == 1, 1, 0)
+```
+
+
+## Pregunta 2.
+```{r}
+#Pregunta 2. Establecer una semilla (“seed”) usando los dígitos del cumpleaños de alguno de los miembros de la pareja.
+
+#Establecemos la semilla con una de nuestras fechas de cumpleaños.
+set.seed(1102)
+```
+
+```{r}
+#Pregunta 3.Extraer una Muestra Aleatoria Simple (MAS) de 2247 observaciones de la población total (base completa). Con esta muestra, utilizar la variable “sup_total” y obtener los siguientes estadísticos.
+
+#Procedemos a extraer de nuestra base de datos una muestra aleatoria simple de 2 247 observaciones.
+mas_cenagro <- cenagro %>%
+  slice_sample(n = 2247)
+```
+
+```{r}
+#Pregunta 3.1. Primero mostramos la suma de todos los valores de la variable sup_total.
+sum(mas_cenagro$sup_total)
+```
+
+```{r}
+#Pregunta 3.2. Procedemos a crear una variable con la media de la variable sup_total.
+mas_cenagro$y_bar_sup_total=mean(mas_cenagro$sup_total)
+mas_cenagro$y_bar_sup_total
+```
+
+```{r}
+#3.3.Procedemos a crear un objeto con la fracción muestral.
+N=2246702
+n=2247
+f=n/N
+f
+```
+
+```{r}
+#3.3.Procedemos a crear una variable con la corrección de población finita.
+fpc=1-f
+fpc
+```
+
+```{r}
+#3.5.Procedemos a crear una variable con el cuadrado de las desviaciones a la media.
+mas_cenagro$desv2=(mas_cenagro$sup_total-mas_cenagro$y_bar_sup_total)^2
+mas_cenagro$desv2
+```
+
+```{r}
+#3.5. Luego procedemos a hacer la suma de estas desviaciones al cuadrado y guardarlas en un objeto.
+desvsq=sum(mas_cenagro$desv2)
+desvsq
+```
+
+```{r}
+#3.6. Procedemos a mostrar la varianza de nuestra muestra.
+s2=(1/(n-1))*desvsq
+s2
+```
+
+```{r}
+#3.7. Procedemos a crear como objeto la varianza muestral de nuestra media.
+var_y_bar=(1-f)*(s2/n)
+var_y_bar
+```
+
+```{r}
+#3.8. Procedemos a crear como objeto el error estándar de nuestra media.
+se_y_bar=sqrt(var_y_bar)
+se_y_bar
+```
+
+```{r}
+#3.9. Creamos una variable con el factor de expansión para cada observación.
+mas_cenagro$w=N/n
+mas_cenagro$w
+```
+
+```{r}
+#3.9. Hacemos la suma de todos los pesos.
+sum(mas_cenagro$w)
+
+#Al hacer esta suma notamos que conseguimos la población original. 
+```
+
+# Pregunta 4. 4.	Extraer una Muestra Aleatoria Estratificada (MAE) de 2247 observaciones utilizando la variable “rango_edad” como estrato. Con esta muestra, utilizar la variable “ppquechua” y: 
+
+## 4.1.	Obtener los mismos estadísticos de las preguntas 3.1-3.9 según la variable de estratificación (intra estrato).
+
+```{r}
+set.seed(1102)
+```
+
+
+```{r}
+mae_cenagro <- cenagro %>%
+  slice_sample(n = 2247)
+```
+
+a. Primero mostramos la suma de todos los valores de la variable ppquechua, para cada uno de los estratos: "12 a 24", "25 a 64" y "65 a mas" (Colocar resultados para cada estrato)
+
+```{r}
+mae_sum <- mae_cenagro %>%
+  group_by(rango_edad) %>%
+  summarise(Freq = sum(ppquechua))
+view(mae_sum)
+```
+Se encontraron los siguientes resultados, para cada uno de los estratos: Estrato "12 a 24" = 34, estrato "25 a 64" = 524 y estrato "65 a mas" = 160
+
+
+Ahora, procedemos a crear 3 submuestras con cada uno de los estratos
+```{r}
+mae_cenagro_1224 = subset(mae_cenagro,mae_cenagro$rango_edad=="12 a 24")
+mae_cenagro_2564 = subset(mae_cenagro,mae_cenagro$rango_edad=="25 a 64")
+mae_cenagro_65mas = subset(mae_cenagro,mae_cenagro$rango_edad=="65 a mas")
+```
+
+b. Crearemos una variable con la media de la variable ppquechua para cada estrato.
+```{r}
+mae_cenagro_1224$media_ppquechua=mean(mae_cenagro_1224$ppquechua)
+mae_cenagro_1224$media_ppquechua
+
+mae_cenagro_2564$media_ppquechua=mean(mae_cenagro_2564$ppquechua)
+mae_cenagro_2564$media_ppquechua
+
+mae_cenagro_65mas$media_ppquechua=mean(mae_cenagro_65mas$ppquechua)
+mae_cenagro_65mas$media_ppquechua
+```
+
+c. Luego crearemos un objeto con la fracción muestral para cada estrato
+```{r}
+N_mae_1224=c(127)
+n_mae_1224=c(34)
+f_mae_1224=n_mae_1224/N_mae_1224
+f_mae_1224
+
+N_mae_2564=c(1663)
+n_mae_2564=c(524)
+f_mae_2564=n_mae_2564/N_mae_2564
+f_mae_2564
+
+N_mae_65mas=c(457)
+n_mae_65mas=c(160)
+f_mae_65mas=n_mae_65mas/N_mae_65mas
+f_mae_65mas
+```
+La fracción muestral identificada para cada uno de los estratos, son los siguientes: Estrato "12 a 24" = 0.2677, estrato "25 a 64" = 0.3151 y estrato "65 a mas" = 0.3501
+
+d. Posteriormente se creará una variable con la corrección de población finita, para cada uno de los estratos. 
+```{r}
+fpc_mae_1224=1-f_mae_1224
+fpc_mae_1224
+
+fpc_mae_2564=1-f_mae_2564
+fpc_mae_2564
+
+fpc_mae_65mas=1-f_mae_65mas
+fpc_mae_65mas
+```
+La correción de población finita (fpc) para cada estrato son las siguientes: Estrato "12 a 24" = 0.7329, estrato "25 a 64" = 0.6849 y estrato "65 a mas" = 0.6499
+
+e. Luego, creamos una variable con el cuadrado de las desviaciones a la media.
+```{r}
+mae_cenagro_1224$desv2=(mae_cenagro_1224$ppquechua-mae_cenagro_1224$media_ppquechua)^2
+mae_cenagro_1224$desv2
+
+mae_cenagro_2564$desv2=(mae_cenagro_2564$ppquechua-mae_cenagro_2564$media_ppquechua)^2
+mae_cenagro_2564$desv2
+
+mae_cenagro_65mas$desv2=(mae_cenagro_65mas$ppquechua-mae_cenagro_65mas$media_ppquechua)^2
+mae_cenagro_65mas$desv2
+```
+
+Con estos datos obtenidos, procedemos a realizar la suma de las desviaciones al cuadrado y las guardarmos en un objeto, para cada uno de los estratos
+```{r}
+desvsq_1224=sum(mae_cenagro_1224$desv2)
+desvsq_1224
+
+desvsq_2564=sum(mae_cenagro_2564$desv2)
+desvsq_2564
+
+desvsq_65mas=sum(mae_cenagro_65mas$desv2)
+desvsq_65mas
+```
+Se identifican los siguientes resultados: Estrato "12 a 24" = 24.8977, estrato "25 a 64" = 358.8912 y estrato "65 a mas" = 103.9825
+
+f. Procedemos a mostrar la varianza de nuestra muestra, para cada uno de los estratos
+```{r}
+s2_1224=(1/(n_mae_1224-1))*desvsq_1224
+s2_1224
+
+s2_2564=(1/(n_mae_2564-1))*desvsq_2564
+s2_2564
+
+s2_65mas=(1/(n_mae_65mas-1))*desvsq_65mas
+s2_65mas
+```
+y obtenemos lo siguientes: Estrato "12 a 24" = 0.7545, estrato "25 a 64" = 0.6862 y estrato "65 a mas" = 0.6540
+
+g. Ahora, crearemos como objeto la varianza muestral de nuestra media, para cada uno de los estratos.
+```{r}
+var_y_bar_1224=(1-f_mae_1224)*(s2_1224/n_mae_1224)
+var_y_bar_1224
+
+var_y_bar_2564=(1-f_mae_2564)*(s2_2564/n_mae_2564)
+var_y_bar_2564
+
+var_y_bar_65mas=(1-f_mae_65mas)*(s2_65mas/n_mae_65mas)
+var_y_bar_65mas
+```
+obeteniendo: Estrato "12 a 24" = 0.0162, estrato "25 a 64" = 0.0009 y estrato "65 a mas" = 0.0027
+
+h. Luego, creamos como objeto el error estándar de nuestra media, para cada estrato.
+```{r}
+se_y_bar_1224=sqrt(var_y_bar_1224)
+se_y_bar_1224
+
+se_y_bar_2564=sqrt(var_y_bar_2564)
+se_y_bar_2564
+
+se_y_bar_65mas=sqrt(var_y_bar_65mas)
+se_y_bar_65mas
+```
+y se obetiene los sigueintes resultados: Estrato "12 a 24" = 0.1275, estrato "25 a 64" = 0.0299 y estrato "65 a mas" = 0.0515
+
+i. Creamos una variable con el factor de expansión para cada observación.
+```{r}
+mae_cenagro_1224$w=N_mae_1224/n_mae_1224
+mae_cenagro_1224$w
+
+mae_cenagro_2564$w=N_mae_2564/n_mae_2564
+mae_cenagro_2564$w
+
+mae_cenagro_65mas$w=N_mae_65mas/n_mae_65mas
+mae_cenagro_65mas$w
+```
+
+3.9. Finalmente, procedemos a realizar la suma de todos los pesos, para cada uno de los estratos.
+
+```{r}
+sum(mae_cenagro_1224$w)
+
+sum(mae_cenagro_2564$w)
+
+sum(mae_cenagro_65mas$w)
+
+#Al hacer esta suma notamos que conseguimos la población total original, ya que inicialmente se estuvo trabajando con una muestra de la población para cada uno de los estratos. Una vez que aplicamos el factor de expasión, los resultados obtenidos son extrapolables a nivel poblacional. 
+```
+
+Ahora procedemos a unir las 3 submuestras, correspondientes a cada uno de los estratos:
+
+```{r}
+mae_cenagro_1224_2564=rbind(mae_cenagro_1224, mae_cenagro_2564)
+mae_cenagro_append = rbind(mae_cenagro_1224_2564, mae_cenagro_65mas)
+```
+
+
+### 4.2.	Declare el diseño muestral y obtenga el promedio de la variable “ppquechua” para toda la muestra utilizando el diseño muestral
+```{r}
+# Contamos para fpc (estrato)
+mae_cenagro_append %>%
+  count(ppquechua)
+
+# Extraemos muestra (MAE)
+mae4 <- mae_cenagro_append %>%
+   group_by(sexo) %>%
+  slice_sample(prop = 0.001)
+
+mae4 <- mae4 %>%
+  mutate(fpce = case_when(
+    sexo == 0 ~ 508712 ,
+    sexo == 1 ~ 485782) , 
+    pwe = case_when(
+      sexo == 0 ~ 508712/508 ,
+      sexo == 1 ~ 485782/485) , .keep = "all")
+
+mae4_d = svydesign(id = ~1 , fpc = ~fpce , data = mae4 , strata = ~sexo)
+mae4_dw = svydesign(id = ~1 , fpc = ~fpce , data = mae4 , strata = ~sexo , weights =~pwe)
+
+# Promedios
+svymean(~c5_p4_1 , mae4_d)
+svymean(~c5_p4_1 , mae4_dw)
+
+# Totales
+svytotal(~sexo , mae4_d)
+svytotal(~sexo , mae4_dw)
+```
+
+```{r}
+## MAE ##
+mae_d <- svydesign(id = ~1 , fpc = ~fpc , data = mae_cenagro_append , strata = ~ppquechua)
+svytotal(~rango_edad , mae_d)
+svymean(~rango_edad , mae_d)
+```
+
+
+
+### 4.3.	Discuta como pueden utilizarse los resultados obtenidos en 4.1 para poder calcular el promedio de la variable “ppquechua” para toda la muestra.
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+

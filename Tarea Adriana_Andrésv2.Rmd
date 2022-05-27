@@ -221,27 +221,27 @@ La fracción muestral identificada para cada uno de los estratos, son los siguie
 
 d. Posteriormente se creará una variable con la corrección de población finita, para cada uno de los estratos. 
 ```{r}
-fpc_mae_1224=1-f_mae_1224
-fpc_mae_1224
+mae_cenagro_1224$fpc_mae=1-f_mae_1224
+head(mae_cenagro_1224$fpc_mae)
 
-fpc_mae_2564=1-f_mae_2564
-fpc_mae_2564
+mae_cenagro_2564$fpc_mae=1-f_mae_2564
+head(mae_cenagro_2564$fpc_mae)
 
-fpc_mae_65mas=1-f_mae_65mas
-fpc_mae_65mas
+mae_cenagro_65mas$fpc_mae=1-f_mae_65mas
+head(mae_cenagro_65mas$fpc_mae)
 ```
 La correción de población finita (fpc) para cada estrato son las siguientes: Estrato "12 a 24" = 0.7329, estrato "25 a 64" = 0.6849 y estrato "65 a mas" = 0.6499
 
 e. Luego, creamos una variable con el cuadrado de las desviaciones a la media.
 ```{r}
 mae_cenagro_1224$desv2=(mae_cenagro_1224$ppquechua-mae_cenagro_1224$media_ppquechua)^2
-mae_cenagro_1224$desv2
+head(mae_cenagro_1224$desv2)
 
 mae_cenagro_2564$desv2=(mae_cenagro_2564$ppquechua-mae_cenagro_2564$media_ppquechua)^2
-mae_cenagro_2564$desv2
+head(mae_cenagro_2564$desv2)
 
 mae_cenagro_65mas$desv2=(mae_cenagro_65mas$ppquechua-mae_cenagro_65mas$media_ppquechua)^2
-mae_cenagro_65mas$desv2
+head(mae_cenagro_65mas$desv2)
 ```
 
 Con estos datos obtenidos, procedemos a realizar la suma de las desviaciones al cuadrado y las guardarmos en un objeto, para cada uno de los estratos
@@ -299,13 +299,13 @@ y se obetiene los sigueintes resultados: Estrato "12 a 24" = 0.1275, estrato "25
 i. Creamos una variable con el factor de expansión para cada observación.
 ```{r}
 mae_cenagro_1224$w=N_mae_1224/n_mae_1224
-mae_cenagro_1224$w
+head(mae_cenagro_1224$w)
 
 mae_cenagro_2564$w=N_mae_2564/n_mae_2564
-mae_cenagro_2564$w
+head(mae_cenagro_2564$w)
 
 mae_cenagro_65mas$w=N_mae_65mas/n_mae_65mas
-mae_cenagro_65mas$w
+head(mae_cenagro_65mas$w)
 ```
 
 3.9. Finalmente, procedemos a realizar la suma de todos los pesos, para cada uno de los estratos.
@@ -323,6 +323,8 @@ w_tot
 #Al hacer esta suma notamos que conseguimos la población total original, ya que inicialmente se estuvo trabajando con una muestra de la población para cada uno de los estratos. Una vez que aplicamos el factor de expasión, los resultados obtenidos son extrapolables a nivel poblacional. 
 ```
 
+### 4.2.	Declare el diseño muestral y obtenga el promedio de la variable “ppquechua” para toda la muestra utilizando el diseño muestral
+
 Ahora procedemos a unir las 3 submuestras, correspondientes a cada uno de los estratos:
 
 ```{r}
@@ -331,39 +333,11 @@ mae_cenagro_append = rbind(mae_cenagro_1224_2564, mae_cenagro_65mas)
 ```
 
 
-### 4.2.	Declare el diseño muestral y obtenga el promedio de la variable “ppquechua” para toda la muestra utilizando el diseño muestral
 ```{r}
-# Contamos para fpc (estrato)
-mae_cenagro_append %>%
-  count(ppquechua)
-
-mae4 <- mae4 %>%
-  mutate(fpce = case_when(
-    sexo == 0 ~ 508712 ,
-    sexo == 1 ~ 485782) , 
-    pwe = case_when(
-      sexo == 0 ~ 508712/508 ,
-      sexo == 1 ~ 485782/485) , .keep = "all")
-
-mae4_d = svydesign(id = ~1 , fpc = ~fpce , data = mae4 , strata = ~sexo)
-mae4_dw = svydesign(id = ~1 , fpc = ~fpce , data = mae4 , strata = ~sexo , weights =~pwe)
-
-# Promedios
-svymean(~c5_p4_1 , mae4_d)
-svymean(~c5_p4_1 , mae4_dw)
-
-# Totales
-svytotal(~sexo , mae4_d)
-svytotal(~sexo , mae4_dw)
+mae4_dw = svydesign(id = ~1 , fpc = ~fpc_mae , data = mae_cenagro_append , strata = ~rango_edad , weights =~w)
+svymean(~ppquechua , mae4_dw)
+svytotal(~rango_edad , mae4_dw)
 ```
-
-```{r}
-## MAE ##
-mae_d <- svydesign(id = ~1 , fpc = ~fpc , data = mae_cenagro_append , strata = ~ppquechua)
-svytotal(~rango_edad , mae_d)
-svymean(~rango_edad , mae_d)
-```
-
 
 
 ### 4.3.	Discuta como pueden utilizarse los resultados obtenidos en 4.1 para poder calcular el promedio de la variable “ppquechua” para toda la muestra.

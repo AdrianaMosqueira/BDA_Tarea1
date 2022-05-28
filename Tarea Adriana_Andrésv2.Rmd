@@ -151,6 +151,10 @@ sum(mas_cenagro$w)
 
 #Al hacer esta suma notamos que conseguimos la población original. 
 
+#Cada peso (N/n_i) refleja el hecho que cada observación en la muestra representa N/n_i observaciones en la población total. En nuestra muestra tendremos algunas categorías sobre-muestreadas y otras sub-muestreadas y los pesos ayudan 
+
+#De forma mecánica, tenemos que la probabilidad de selección es n_i/N y la suma de todas las probabilidades da N/N = 1. Dado que el factor de expansión es el inverso de la probabilidad de selección 
+
 #La suma de los factores de expansión de todos los individuos, de cada uno de los estratos, de la muestra provee una estimación del tamaño del universo de estudio, es decir a nivel poblacional. Esto se debe a que los factores de expansión o ponderadores son parámetros destinados a representar la variable medida en función de la probabilidad de selección que el diseño muestral determinó para cada unidad final de muestreo (cada individuo, hogar, etc. encuestados).
 ```
 
@@ -197,6 +201,20 @@ head(mae_cenagro_2564$media_ppquechua)
 mae_cenagro_65mas$media_ppquechua=mean(mae_cenagro_65mas$ppquechua)
 head(mae_cenagro_65mas$media_ppquechua)
 ```
+Asimismo, guardaremos cada media como objeto para usarlas posteriormente.
+
+```{r}
+media_ppquechua_1224=mean(mae_cenagro_1224$ppquechua)
+media_ppquechua_1224
+
+media_ppquechua_2564=mean(mae_cenagro_2564$ppquechua)
+media_ppquechua_2564
+
+media_ppquechua_65mas=mean(mae_cenagro_65mas$ppquechua)
+media_ppquechua_65mas
+```
+
+
 ```{r}
 table(cenagro$rango_edad)
 ```
@@ -351,36 +369,13 @@ svytotal(~rango_edad , mas4_dw)
 
 ### 4.3.	Discuta como pueden utilizarse los resultados obtenidos en 4.1 para poder calcular el promedio de la variable “ppquechua” para toda la muestra.
 ```{r}
-#El promedio de la variable "ppquechua" para toda la muestra es un promedio ponderado. Multiplicamos cada promedio de estrao por su peso y los sumamos.
+#El promedio de la variable "ppquechua" para toda la muestra es un promedio ponderado. Para ello tomamos las medias por estrato encontrados en el 4.1.2 y multiplicamos cada una por los pesos/factores de expansión encontrados en el 4.1.9. 
 
-#Primero procedemos a sacar los promedios por estrato.
-media_ppquechua_1224=mean(mae_cenagro_1224$ppquechua)
-media_ppquechua_1224
-
-media_ppquechua_2564=mean(mae_cenagro_2564$ppquechua)
-media_ppquechua_2564
-
-media_ppquechua_65mas=mean(mae_cenagro_65mas$ppquechua)
-media_ppquechua_65mas
-```
-```{r}
-#Luego procedemos a sacar los pesos por cada estrato.
-w1224=n_mae_1224/2247
-w1224
-
-w2564=n_mae_2564/2247
-w2564
-
-w65=n_mae_65mas/2247
-w65
-```
-
-
-```{r}
-#Finalmente hacemos el cálculo de nuestra media ponderada.
-mean_ppquechua_tot= (media_ppquechua_1224*w1224 + media_ppquechua_2564*w2564 + media_ppquechua_65mas*w65)
+mean_ppquechua_tot= (media_ppquechua_1224*w_1224 + media_ppquechua_2564*w_2564 + media_ppquechua_65mas*w_65mas)/N
 mean_ppquechua_tot
 ```
+
+
 
 
 

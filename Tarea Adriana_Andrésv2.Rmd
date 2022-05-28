@@ -22,8 +22,25 @@ b. Asume que la variables objetivo es aleatoria: Enfoque del Modelo
 c. Asume un proceso generador de datos: Enfoque del Modelo
 d. Asume que el componente aleatorio viene de cómo seleccionamos las observaciones: Enfoque del Diseño
 
+##Pregunta 2. Responda dos de las siguientes preguntas. La respuesta a cada pregunta no debe pasar de 75 palabras.
+a. ¿Qué esperaría que suceda con el error estándar de la media de una variable conforme se toman muestras de mayor tamaño?
+El error estándar es la raíz cuadrada de la varianza muestral v(y ̅ )=(1-f)s^2/n. Dicho esto vemos que aumentando la muestra (n), disminuye la varianza de la muestra s^2=(1/(n-1))∑_1^n▒〖(y_i 〗 〖- y ̅)〗^2 y el fpc (1-n/N)=(1-f) y por ende disminuye el numerador y aumenta el denominador. Esto da una varianza muestral más chica y un error estándar más chico. Por LLN, al aumentar n, la media de la variable se acerca a la verdadera media y su dispersión disminuye. 
+ 
+b. ¿En qué se diferencian un dominio y un estrato?
+Un dominio es un nivel de análisis donde tenemos capacidad de inferencia. Desde el dominio planificamos y extraemos las muestras. Para tener resultados representativos a nivel de departamento, se toma una muestra necesaria en cada departamento. Una muestra estratificada conserva la proporción de los valores de una variable. Una muestra estratificada por sexo tiene 2 estratos y al ser representativa del ratio hombres/mujeres poblacional, reducimos variación atribuida al sexo y despejamos efectos heterogéneos por sexo.
+
+c. ¿Qué es el factor de expansión y cómo se construye?
+El factor de expansión (N/n) es el peso con el que vamos a ponderar cada observación. Cada observación de la muestra representa N/ni observaciones en la población. El factor de expansión corrige el sobre-muestro hecho para ciertas poblaciones a fin de tener capacidad de inferencia para ellas. Se construye tomando el inverso de la probabilidad de selección 1/(n/N) para cada observación. Sumar los factores de expansión de cada individuo de la muestra, arroja la población. 
+
+d. ¿Qué esperaría que suceda con el error estándar de la media de una variable cuando en vez de realizar un MAS se realiza un MAE? ¿Por qué?
+Se espera que error el estándar disminuya con un MAE pues éste siempre o deja intacta o reduce la varianza, comparado al MAS. El promedio de nuestra variable en la población puede presentar diferencias para ciertas categorías de población. En un MAE, podemos obtener medias más eficientes pues la muestra mantiene esos ratios a diferencia del MAS donde podríamos tener una muestra desbalanceada y una media que, aún siendo insesgada, presente mayor error estándar.     
+
+e. Explique en sus propias palabras que es el efecto de diseño (DEFF)
+El deff es el ratio de la varianza de nuestro diseño muestral comparado con la varianza que obtendríamos con un MAS (con igual tamaño de muestra). Es decir, la varianza de nuestro diseño es igual a una varianza MAS ajustada por el deff. Si éste es mayor a 1, nuestro diseño muestral es menos eficiente (mayor variación) que un diseño MAS comparable; si deff<1 es más eficiente; y si deff=1 es igualmente eficiente.  
+
 
 # Parte II
+
 
 ```{r}
 #Cargamos las librerías

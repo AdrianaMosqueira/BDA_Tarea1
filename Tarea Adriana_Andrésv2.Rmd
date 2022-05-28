@@ -83,6 +83,7 @@ table(cenagro$rango_edad)
 Se construye una variable dicotómica denominada "ppquechua", que tendrá el varlor de 1 = lengua materna es el quechua y 0 = lengua materna no es el quechua
 ```{r}
 cenagro$ppquechua <- ifelse(cenagro$lengua == 1, 1, 0)
+table(cenagro$ppquechua)
 ```
 
 
@@ -130,13 +131,13 @@ mas_cenagro$fpc=1-f
 head(mas_cenagro$fpc)
 ```
 
-Procedemos a crear una variable con el cuadrado de las desviaciones a la media.
+### 3.5. Procedemos a crear una variable con el cuadrado de las desviaciones a la media.
 ```{r}
 mas_cenagro$desv2=(mas_cenagro$sup_total-mas_cenagro$y_bar_sup_total)^2
 head(mas_cenagro$desv2)
 ```
 
-### 3.5. Luego procedemos a hacer la suma de estas desviaciones al cuadrado y guardarlas en un objeto.
+### Luego procedemos a hacer la suma de estas desviaciones al cuadrado y guardarlas en un objeto.
 ```{r}
 desvsq=sum(mas_cenagro$desv2)
 desvsq
@@ -205,7 +206,7 @@ view(mae_sum)
 Se encontraron los siguientes resultados, para cada uno de los estratos: Estrato "12 a 24" = 34, estrato "25 a 64" = 524 y estrato "65 a mas" = 160
 
 
-Ahora, procedemos a crear 3 submuestras con cada uno de los estratos
+Ahora, procedemos a crear 3 submuestras para cada uno de los estratos
 ```{r}
 mae_cenagro_1224 = subset(mae_cenagro,mae_cenagro$rango_edad=="12 a 24")
 mae_cenagro_2564 = subset(mae_cenagro,mae_cenagro$rango_edad=="25 a 64")
@@ -236,11 +237,6 @@ media_ppquechua_65mas=mean(mae_cenagro_65mas$ppquechua)
 media_ppquechua_65mas
 ```
 
-
-```{r}
-table(cenagro$rango_edad)
-```
-
 #### 4.1.3. Luego crearemos un objeto con la fracción muestral para cada estrato
 ```{r}
 N_mae_1224=c(114647)
@@ -259,7 +255,7 @@ f_mae_65mas=n_mae_65mas/N_mae_65mas
 f_mae_65mas
 ```
 
-La fracción muestral identificada para cada uno de los estratos, son los siguientes: Estrato "12 a 24" = 0.0011, estrato "25 a 64" = 0.001 y estrato "65 a mas" = 0.001
+La fracción muestral identificada para cada uno de los estratos, son los siguientes: Estrato "12 a 24" = 0.0011, estrato "25 a 64" = 0.000998 y estrato "65 a mas" = 0.00098
 
 #### 4.1.4. Posteriormente se creará una variable con la corrección de población finita, para cada uno de los estratos. 
 ```{r}
@@ -384,17 +380,9 @@ svymean(~ppquechua , mae4_dw)
 svytotal(~rango_edad , mae4_dw)
 ```
 
-Como referencia dejamos el diseño 
-
-```{r}
-mas4_dw = svydesign(id = ~1 , fpc =~fpc, weights =~w , data = mas_cenagro)
-svymean(~ppquechua , mas4_dw)
-svytotal(~rango_edad , mas4_dw)
-```
-
 ### 4.3.	Discuta como pueden utilizarse los resultados obtenidos en 4.1 para poder calcular el promedio de la variable “ppquechua” para toda la muestra.
 
-El promedio de la variable "ppquechua" para toda la muestra es un promedio ponderado. Para ello tomamos las medias por estrato encontrados en el 4.1.2 y multiplicamos cada una por los pesos/factores de expansión encontrados en el 4.1.9. 
+El promedio de la variable "ppquechua" para toda la muestra es un promedio ponderado. Para ello tomamos las medias por estrato encontrados en el 4.1.2 y multiplicamos cada una por los pesos/factores de expansión encontrados en el 4.1.9., que corresponden a la suma de los pesos de cada individuo de cada estrato.
 
 ```{r}
 mean_ppquechua_tot= (media_ppquechua_1224*w_1224 + media_ppquechua_2564*w_2564 + media_ppquechua_65mas*w_65mas)/N

@@ -10,9 +10,11 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
+tarea2 = genfromtxt('tarea2.csv', delimiter=',')
+tarea2_chunks = np.array_split(tarea2, 3)
+
 if rank == 0:
-    tarea2 = genfromtxt('tarea2.csv', delimiter=',')
-    data = np.array_split(tarea2, 3)
+    data = tarea2_chunks 
 else:
-    data_s=np.empty(349525)
-comm.Scatter(data,data_s,root=0)
+    data=np.empty(349525)
+comm.Scatter(data,root=0)

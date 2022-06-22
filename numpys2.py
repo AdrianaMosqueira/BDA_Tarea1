@@ -16,8 +16,8 @@ if rank == 0:
 elif rank == 1:
     num1 = np.empty(1000000)
     comm.Recv(num1, source=0)
-    print (num1)
+    print ("El procesador",rank,"recibio",num1)
 elif rank == 2:
     num2 = np.empty(1000000)
     comm.Recv(num2, source=0)
-    print (num2)
+    print ("El procesador",rank,"recibio",num2)
